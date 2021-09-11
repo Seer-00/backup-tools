@@ -9,13 +9,15 @@ class Statistic:
         self.same = 'SKIP'
         self.existence = 'OVERWRITE'
 
-        self.source_count = 0
+        # self.source_count = 0
+        # self.ignore_count = 0
         self.skip_count = 0
         # self.copy_count = 0
         # self.overwrite_count = 0
 
         self.copy_list = []
         self.overwrite_list = []
+        self.warning_list = []
 
         self.start_time = time.time()
         self.end_time = None
@@ -29,6 +31,9 @@ class Statistic:
 
     def get_copy_count(self):
         return len(self.copy_list)
+
+    def get_warning_count(self):
+        return len(self.warning_list)
 
 
 stat = Statistic()
