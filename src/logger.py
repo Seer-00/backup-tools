@@ -7,18 +7,14 @@ from src.config import config
 from src.statistics import stat
 
 
-def log_stat():
-    if stat.get_copy_count() != 0:
-        _copy_list = '\n'.join(stat.copy_list)
-        _copy_list = '\n' + _copy_list + '\n'
-    else:
-        _copy_list = '空\n'
+def format_list_to_str(origin_list):
+    return ('\n' + '\n'.join(origin_list) + '\n') if origin_list else '无\n'
 
-    if stat.get_overwrite_count() != 0:
-        _overwrite_list = '\n'.join(stat.overwrite_list)
-        _overwrite_list = '\n' + _overwrite_list + '\n'
-    else:
-        _overwrite_list = '空\n'
+
+def log_stat():
+    _copy_list = format_list_to_str(stat.copy_list)
+    _overwrite_list = format_list_to_str(stat.overwrite_list)
+    _warning_list = format_list_to_str(stat.warning_list)
 
     logger.info(
         '\n------------------ 统计信息 -----------------\n'
@@ -28,8 +24,8 @@ def log_stat():
         f'跳过数: {stat.skip_count}\n'
         f'复制数: {stat.get_copy_count()} 复制: {_copy_list}'
         f'覆盖数: {stat.get_overwrite_count()} 覆盖: {_overwrite_list}'
-        f'总耗时: {stat.get_duration()}'
-        '\n------------------ 统计信息 -----------------'
+        f'总耗时: {stat.get_duration()}\n'
+        f'警告：{_warning_list}'
     )
 
 

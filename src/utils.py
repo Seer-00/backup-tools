@@ -15,7 +15,7 @@ def format_byte(byte_cnt):
     return s[::-1] + ' B'  # reverse again
 
 
-def format_src_paths(src_paths: list):
+def format_paths(src_paths: list):
     _ = list(map(lambda x: x.strip('/ '), src_paths))  # strip all ' ' and '/'
     return [x + '/' if os.path.isdir(x) else x for x in _]  # for dir: append one '/'
 
@@ -35,7 +35,7 @@ def check_not_exist_paths(paths: list):
     not_exist_paths = [p for p in paths if not os.path.exists(p)]
     if not_exist_paths:
         logger.error('The following paths do not exist:\n' + '\n'.join(not_exist_paths))
-        raise Exception('Invalid source paths. Please check log.')
+        raise Exception('Invalid paths. Please check log.')
 
 
 def check_dst_root_path(dst: str):
@@ -49,9 +49,19 @@ def check_dst_root_path(dst: str):
         raise Exception('Invalid destination. Please check log.')
 
 
-def format_check_src_dst(src_paths, dst_root_path):
-    src_paths = format_src_paths(src_paths)
+def handle_src(src_paths):
+    src_paths = format_paths(src_paths)
+    check_not_exist_paths(src_paths)
+    return src_paths
+
+
+def handle_ignore(ignore_paths):
+    ignore_paths = format_paths(ignore_paths)
+    check_not_exist_paths(ignore_paths)
+    return ignore_paths
+
+
+def handle_dst(dst_root_path):
     dst_root_path = format_dst_root_path(dst_root_path)
     check_dst_root_path(dst_root_path)
-    check_not_exist_paths(src_paths)
-    return src_paths, dst_root_path
+    return dst_root_path
