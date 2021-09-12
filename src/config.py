@@ -26,20 +26,20 @@ def check_conflict_paths(srcs: list, igns: list, err: list):
 
 
 def handle_config(cfg):
-    cfg.src_paths = utils.handle_src(config.backup_source)
-    cfg.ign_paths = utils.handle_src(config.backup_ignore)
+    cfg.backup_source = utils.handle_src(config.backup_source)
+    cfg.backup_ignore = utils.handle_ignore(config.backup_ignore)
     cfg.backup_destination = utils.handle_dst(config.backup_destination)
 
     err = []
     # conflict paths. e.g. source: D:/A/B, D:/A/c.txt BUT ignore: D:/A
-    check_conflict_paths(cfg.src_paths, cfg.ign_paths, err)
+    check_conflict_paths(cfg.backup_source, cfg.backup_ignore, err)
 
     # redundant paths. e.g. D:/A/a, D:/A
-    check_redundant_paths(cfg.src_paths, err, kind='source')
-    check_redundant_paths(cfg.ign_paths, err, kind='ignore')
+    check_redundant_paths(cfg.backup_source, err, kind='source')
+    check_redundant_paths(cfg.backup_ignore, err, kind='ignore')
 
-    cfg.ign_paths = set(cfg.ign_paths)  # list->set: more efficient query
-    return cfg, err
+    cfg.backup_ignore = set(cfg.backup_ignore)  # list->set: more efficient query
+    return err
 
 
 class Config:
@@ -64,7 +64,9 @@ class Config:
     def load_config_json(self):
         if self.is_config_exist():
             with open(self._json_path, mode='r', encoding='utf-8') as f:
-                return json.load(f)
+                # 特殊的路径无法被json识别，如D:\test\c，\c为非法转义字符
+                # return json.load(f)
+                return json.loads(f.read().replace('\\', '\\\\'))
         else:
             return self._default_config
 
