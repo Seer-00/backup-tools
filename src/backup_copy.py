@@ -14,7 +14,7 @@ class BackupCopy:
     CONTAIN_IGNORE = 2
 
     def __init__(self, config):
-        config, err = handle_config(config)
+        err = handle_config(config)
         if err:
             for e in err:
                 logger.error(e)

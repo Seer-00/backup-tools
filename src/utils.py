@@ -2,6 +2,7 @@
 
 import os
 import time
+import re
 from src.logger import logger
 
 
@@ -15,14 +16,13 @@ def format_byte(byte_cnt):
     return s[::-1] + ' B'  # reverse again
 
 
-def format_paths(src_paths: list):
-    _ = list(map(lambda x: x.strip('/ '), src_paths))  # strip all ' ' and '/'
+def format_paths(paths: list):
+    _ = list(map(lambda x: re.sub(r'\\+', '/', x.strip(r'\/ ')), paths))  # replace '\', '\\' to '/'
     return [x + '/' if os.path.isdir(x) else x for x in _]  # for dir: append one '/'
 
 
 def format_dst_root_path(dst: str):
-    # strip all ' ' and '/', then append one '/'
-    return dst.strip('/ ') + '/'
+    return re.sub(r'\\+', '/', dst.strip(r'\/ ')) + '/'
 
 
 def join_dst_path(src: str, dst_root: str):
