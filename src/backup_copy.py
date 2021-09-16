@@ -35,6 +35,7 @@ class BackupCopy:
                 return
 
     def try_to_copy(self, src):
+        src = utils.format_path(src)
         dst = utils.join_dst_path(src=src, dst_root=self.dst_root_path)
         # dst exist
         if os.path.exists(dst):
@@ -50,15 +51,16 @@ class BackupCopy:
                 self.cp_not_exist_file(src, dst)
 
     def cp_not_exist_dir(self, src, dst):
-        if in_ignores(src, self.ign_paths) == BackupCopy.NO_IGNORE:
+        ignore_status = in_ignores(src, self.ign_paths)
+        if ignore_status == BackupCopy.NO_IGNORE:
             shutil.copytree(src, dst)
             stat.copy_list.append(src)
             logger.info(f'[Copy] ({src}) -> ({dst})')
-        elif in_ignores(src, self.ign_paths) == BackupCopy.CONTAIN_IGNORE:
+        elif ignore_status == BackupCopy.CONTAIN_IGNORE:
             # Create new dir for current destination.
             os.makedirs(dst)
             logger.info(f'[Create] new directory ({dst})')
-            # Let cp_exist_dir do recursive jobs.
+            # Let 'Function: cp_exist_dir' do recursive jobs.
             self.cp_exist_dir(src)
         else:
             return  # HIT_IGNORE
@@ -77,12 +79,13 @@ class BackupCopy:
         logger.info(f'[Copy] ({src}) -> ({dst})')
 
     def cp_exist_dir(self, src):
+        if in_ignores(src, self.ign_paths) == BackupCopy.HIT_IGNORE:
+            return
+        # NO_IGNORE or CONTAIN_IGNORE, continue to sub-items
         for sub_item in os.listdir(src):  # recursively try to copy sub-items
             sub_src = os.path.join(src, sub_item).replace('\\', '/')
             try:
-                # logger.info(f'>>>>> [Begin] to copy ({sub_src}) >>>>>')
                 self.try_to_copy(sub_src)
-                # logger.info(f'<<<<< [Finish] to copy ({sub_src}) <<<<<\n')
             except Exception as e:
                 logger.exception(e)
                 return
