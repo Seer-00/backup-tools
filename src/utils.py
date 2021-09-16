@@ -16,9 +16,16 @@ def format_byte(byte_cnt):
     return s[::-1] + ' B'  # reverse again
 
 
+def format_path(path: str):
+    if not path.endswith('/') and os.path.isdir(path):
+        return path + '/'
+    else:
+        return path
+
+
 def format_paths(paths: list):
     _ = list(map(lambda x: re.sub(r'\\+', '/', x.strip(r'\/ ')), paths))  # replace '\', '\\' to '/'
-    return [x + '/' if os.path.isdir(x) else x for x in _]  # for dir: append one '/'
+    return list(map(format_path, _))  # for dir: append one '/'
 
 
 def format_dst_root_path(dst: str):
@@ -27,6 +34,7 @@ def format_dst_root_path(dst: str):
 
 def join_dst_path(src: str, dst_root: str):
     # e.g. (C:/src/file, D:/dst/) -> D:/dst/src/file
+    # e.g. (C:/src/dir/, D:/dst/) -> D:/dst/src/dir/
     pos = src.find(':/') + 2
     return dst_root + src[pos:]
 
